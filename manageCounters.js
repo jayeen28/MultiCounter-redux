@@ -83,6 +83,8 @@ const manageRender = () => {
 
 }
 
+manageRender();
+
 // Subscribe to store for getting the state updates
 store.subscribe(manageRender)
 
