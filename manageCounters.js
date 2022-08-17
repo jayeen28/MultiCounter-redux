@@ -11,6 +11,21 @@ const initialState = {
     }
 }
 
+// Action names
+const ADDCOUNTER = 'addCounter';
+const INCREMENT = 'increment';
+const DECREMENT = 'decrement';
+const RESET = 'reset';
+
+// Action payloads
+const actionPayloads = {
+    addCounter: (length) => ({ type: ADDCOUNTER, payload: { key: `counter${length + 1}` } }),
+    increment: (key, value) => ({ type: INCREMENT, payload: { key, value } }),
+    decrement: (key, value) => ({ type: DECREMENT, payload: { key, value } }),
+    reset: () => ({ type: RESET })
+}
+
+
 /**
  * This is the reducer function for the store.
  * @param {Object} state The current state. 
@@ -20,28 +35,28 @@ const initialState = {
  */
 const counterReducer = (state = initialState, action) => {
     switch (action.type) {
-        case 'addCounter': return {
+        case ADDCOUNTER: return {
             ...state,
             counters: {
                 ...state.counters,
                 [action.payload.key]: 0
             }
         };
-        case 'increment': return {
+        case INCREMENT: return {
             ...state,
             counters: {
                 ...state.counters,
                 [action.payload.key]: state.counters[action.payload.key] + action.payload.value
             }
         };
-        case 'decrement': return {
+        case DECREMENT: return {
             ...state,
             counters: {
                 ...state.counters,
                 [action.payload.key]: state.counters[action.payload.key] - action.payload.value
             }
         };
-        case 'reset':
+        case RESET:
             let countersClone = { ...state.counters };
             Object.keys(countersClone).forEach(key => countersClone[key] = 0);
             return {
@@ -91,22 +106,9 @@ store.subscribe(manageRender)
 // Event handlers
 addCounter.addEventListener('click', () => {
     const length = Object.keys(store.getState().counters).length;
-    store.dispatch({ type: 'addCounter', payload: { key: `counter${length + 1}` } })
+    store.dispatch(actionPayloads.addCounter(length))
 });
-
-const increment = e => store.dispatch({
-    type: 'increment',
-    payload: { key: e.target.id, value: 5 }
-});
-
-const decrement = e => store.dispatch({
-    type: 'decrement',
-    payload: { key: e.target.id, value: 5 }
-});
-
-resetBtn.addEventListener('click', () => {
-    store.dispatch({
-        type: 'reset'
-    })
-})
+const increment = e => store.dispatch(actionPayloads.increment(e.target.id, 5));
+const decrement = e => store.dispatch(store.dispatch(actionPayloads.decrement(e.target.id, 5)));
+resetBtn.addEventListener('click', () => store.dispatch(actionPayloads.reset()))
 //
