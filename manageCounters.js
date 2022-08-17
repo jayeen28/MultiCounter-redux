@@ -60,7 +60,7 @@ const counterReducer = (state = initialState, action) => {
             ...state,
             counters: {
                 ...state.counters,
-                [action.payload.key]: 0
+                [action.payload.key]: defaultValue
             }
         };
         case INCREMENT: return {
