@@ -1,12 +1,9 @@
 const getElemId = id => document.getElementById(id);
-const getElemCls = className => document.getElementsByClassName(className);
 
 // Elements
 const countersWrapper = getElemId('counters-wrapper');
 const addCounter = getElemId('addCounter');
-const reset = getElemId('reset');
-const incrementBtns = Array.from(getElemCls('increment'));
-const decrementBtns = Array.from(getElemCls('decrement'));
+const resetBtn = getElemId('reset');
 
 const initialState = {
     counters: {
@@ -43,7 +40,14 @@ const counterReducer = (state = initialState, action) => {
                 ...state.counters,
                 [action.payload.key]: state.counters[action.payload.key] - action.payload.value
             }
-        }
+        };
+        case 'reset':
+            let countersClone = { ...state.counters };
+            Object.keys(countersClone).forEach(key => countersClone[key] = 0);
+            return {
+                ...state,
+                counters: countersClone
+            }
         default: return { ...state }
     }
 }
@@ -51,9 +55,11 @@ const counterReducer = (state = initialState, action) => {
 // Create Store
 const store = Redux.createStore(counterReducer);
 
+/**
+ * This function manages the counter box render at the UI.
+ */
 const manageRender = () => {
     const state = store.getState();
-    console.log(state);
     countersWrapper.innerHTML = "";
     Object.keys(state.counters).forEach(key => {
         const elem = document.createElement('div');
@@ -62,10 +68,10 @@ const manageRender = () => {
          <div class="p-4 h-auto flex flex-col items-center justify-center space-y-5 bg-white rounded shadow">
              <div class="text-2xl font-semibold" id="counter">${state.counters[key]}</div>
              <div class="flex space-x-3">
-                 <button class="bg-indigo-400 text-white px-3 py-2 rounded shadow increment" id="${key}">
+                 <button class="bg-indigo-400 text-white px-3 py-2 rounded shadow" id="${key}" onclick="increment(event)">
                      Increment
                  </button>
-                 <button class="bg-red-400 text-white px-3 py-2 rounded shadow decrement" id="${key}">
+                 <button class="bg-red-400 text-white px-3 py-2 rounded shadow" id="${key}" onclick="decrement(event)">
                      Decrement
                  </button>
              </div>
@@ -80,21 +86,25 @@ const manageRender = () => {
 // Subscribe to store for getting the state updates
 store.subscribe(manageRender)
 
+// Event handlers
 addCounter.addEventListener('click', () => {
     const length = Object.keys(store.getState().counters).length;
     store.dispatch({ type: 'addCounter', payload: { key: `counter${length + 1}` } })
 });
 
-incrementBtns.forEach(item => {
-    item.addEventListener('click', e => store.dispatch({
-        type: 'increment',
-        payload: { key: e.target.id, value: 5 }
-    }))
+const increment = e => store.dispatch({
+    type: 'increment',
+    payload: { key: e.target.id, value: 5 }
 });
 
-decrementBtns.forEach(item => {
-    item.addEventListener('click', e => store.dispatch({
-        type: 'decrement',
-        payload: { key: e.target.id, value: 5 }
-    }))
+const decrement = e => store.dispatch({
+    type: 'decrement',
+    payload: { key: e.target.id, value: 5 }
 });
+
+resetBtn.addEventListener('click', () => {
+    store.dispatch({
+        type: 'reset'
+    })
+})
+//
