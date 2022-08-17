@@ -1,17 +1,17 @@
-/**
- * This function is used for getting elements by id.
- * @param {String} id The id of the element.
- * @returns It returs the dom element found by that id. If not found then the return value will be null.
- */
-const getElm = (id) => document.getElementById(id)
+const getElemId = id => document.getElementById(id);
+const getElemCls = className => document.getElementsByClassName(className);
 
 // Elements
-const countersWrapper = getElm('counters-wrapper');
-const addCounter = getElm('addCounter');
-const reset = getElm('reset');
+const countersWrapper = getElemId('counters-wrapper');
+const addCounter = getElemId('addCounter');
+const reset = getElemId('reset');
+const incrementBtns = Array.from(getElemCls('increment'));
+const decrementBtns = Array.from(getElemCls('decrement'));
 
 const initialState = {
-    counters: [0]
+    counters: {
+        counter1: 0
+    }
 }
 
 /**
@@ -25,11 +25,24 @@ const counterReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'addCounter': return {
             ...state,
-            counters: [...state.counters, 0]
+            counters: {
+                ...state.counters,
+                [action.payload.key]: 0
+            }
         };
         case 'increment': return {
             ...state,
-            counters: state.counters.map((v, i) => action.payload.index === i && action.payload.value)
+            counters: {
+                ...state.counters,
+                [action.payload.key]: state.counters[action.payload.key] + action.payload.value
+            }
+        };
+        case 'decrement': return {
+            ...state,
+            counters: {
+                ...state.counters,
+                [action.payload.key]: state.counters[action.payload.key] - action.payload.value
+            }
         }
         default: return { ...state }
     }
@@ -38,15 +51,50 @@ const counterReducer = (state = initialState, action) => {
 // Create Store
 const store = Redux.createStore(counterReducer);
 
-
 const manageRender = () => {
     const state = store.getState();
-    console.log(state)
+    console.log(state);
+    countersWrapper.innerHTML = "";
+    Object.keys(state.counters).forEach(key => {
+        const elem = document.createElement('div');
+        elem.innerHTML = `
+        <div class="max-w-md mx-auto mt-10 space-y-5">
+         <div class="p-4 h-auto flex flex-col items-center justify-center space-y-5 bg-white rounded shadow">
+             <div class="text-2xl font-semibold" id="counter">${state.counters[key]}</div>
+             <div class="flex space-x-3">
+                 <button class="bg-indigo-400 text-white px-3 py-2 rounded shadow increment" id="${key}">
+                     Increment
+                 </button>
+                 <button class="bg-red-400 text-white px-3 py-2 rounded shadow decrement" id="${key}">
+                     Decrement
+                 </button>
+             </div>
+            </div>
+        </div>
+        `;
+        countersWrapper.appendChild(elem)
+    });
+
 }
 
 // Subscribe to store for getting the state updates
 store.subscribe(manageRender)
 
 addCounter.addEventListener('click', () => {
-    store.dispatch({ type: 'addCounter' })
+    const length = Object.keys(store.getState().counters).length;
+    store.dispatch({ type: 'addCounter', payload: { key: `counter${length + 1}` } })
+});
+
+incrementBtns.forEach(item => {
+    item.addEventListener('click', e => store.dispatch({
+        type: 'increment',
+        payload: { key: e.target.id, value: 5 }
+    }))
+});
+
+decrementBtns.forEach(item => {
+    item.addEventListener('click', e => store.dispatch({
+        type: 'decrement',
+        payload: { key: e.target.id, value: 5 }
+    }))
 });
