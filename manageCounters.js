@@ -1,18 +1,21 @@
 const counterBox = (count, key) => `
     <div class="max-w-md mx-auto mt-10 space-y-5">
     <div class="p-4 h-auto flex flex-col items-center justify-center space-y-5 bg-white rounded shadow">
-        <div class="text-2xl font-semibold" id="counter">${count}</div>
-        <div class="flex space-x-3">
-            <button class="bg-indigo-400 text-white px-3 py-2 rounded shadow" title="${key}" onclick="increment(event)">
+    <div class="text-2xl font-semibold" id="counter">${count}</div>
+    <!-- Input to get increment or decrement value -->
+    <input placeholder="Value" type="number" class="valueInput" id="${key}-valueInput"/>
+    <div class="flex space-x-3">
+            <button class="bg-indigo-400 text-white px-3 py-2 rounded shadow" id="${key}" onclick="incrOrDecr(event,'increment')">
                 Increment
             </button>
-            <button class="bg-red-400 text-white px-3 py-2 rounded shadow" title="${key}" onclick="decrement(event)">
+            <button class="bg-red-400 text-white px-3 py-2 rounded shadow" id="${key}" onclick="incrOrDecr(event,'decrement')">
                 Decrement
             </button>
         </div>
         </div>
     </div>
 `;
+
 // Shotcut to get an element by Id.
 const getElemId = id => document.getElementById(id);
 
@@ -111,7 +114,12 @@ addCounter.addEventListener('click', () => {
     const length = Object.keys(store.getState().counters).length;
     store.dispatch(actionPayloads.addCounter(length))
 });
-const increment = e => store.dispatch(actionPayloads.increment(e.target.title, 5));
-const decrement = e => store.dispatch(actionPayloads.decrement(e.target.title, 5));
+
+const incrOrDecr = (e, method) => {
+    const id = e.target.id;
+    const value = parseInt(getElemId(`${id}-valueInput`).value) || 1;
+    store.dispatch(actionPayloads[method](id, value))
+}
+
 resetBtn.addEventListener('click', () => store.dispatch(actionPayloads.reset()))
 //
