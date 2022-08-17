@@ -25,7 +25,7 @@ const counterReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'addCounter': return {
             ...state,
-            counters: [...state.counters, state.counters.length]
+            counters: [...state.counters, 0]
         };
         case 'increment': return {
             ...state,
@@ -35,11 +35,18 @@ const counterReducer = (state = initialState, action) => {
     }
 }
 
-const manageRender = () => {
+// Create Store
+const store = Redux.createStore(counterReducer);
 
+
+const manageRender = () => {
+    const state = store.getState();
+    console.log(state)
 }
 
+// Subscribe to store for getting the state updates
+store.subscribe(manageRender)
+
 addCounter.addEventListener('click', () => {
-    const res = counterReducer(initialState, { type: 'addCounter' });
-    console.log(res)
+    store.dispatch({ type: 'addCounter' })
 });
