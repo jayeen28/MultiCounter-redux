@@ -22,9 +22,10 @@ const addCounter = getElemId('addCounter');
 const resetBtn = getElemId('reset');
 
 // The initial state
+const defaultValue = 0;
 const initialState = {
     counters: {
-        counter1: 0
+        counter1: defaultValue
     }
 }
 
@@ -75,7 +76,7 @@ const counterReducer = (state = initialState, action) => {
         };
         case RESET:
             let countersClone = { ...state.counters };
-            Object.keys(countersClone).forEach(key => countersClone[key] = 0);
+            Object.keys(countersClone).forEach(key => countersClone[key] = defaultValue);
             return {
                 ...state,
                 counters: countersClone
